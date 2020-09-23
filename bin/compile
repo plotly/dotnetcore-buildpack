@@ -58,6 +58,12 @@ fi
 topic "Project Name"
 info $PROJECT_NAME
 
+info "Installing giraffe"
+dotnet add $PROJECT_FILE package Giraffe --version 4.1.0
+
+info "Installing Microsoft.AspNetCore.App"
+dotnet add $PROJECT_FILE package Microsoft.AspNetCore.App --version 2.2.8
+
 if [ -n "$(cat $PROJECT_FILE | grep 'netcoreapp2.0')" ]; then
 	topic "WARNING"
 	info "For netcoreapp2.0 use https://github.com/jincod/dotnetcore-buildpack#v2.1.200" | indent
@@ -66,7 +72,7 @@ fi
 export NUGET_PACKAGES="${CACHE_DIR}/nuget/cache"
 
 info "publish ${PROJECT_FILE} for ${BUILD_CONFIGURATION}"
-dotnet publish $PROJECT_FILE --output ${BUILD_DIR}/heroku_output --configuration ${BUILD_CONFIGURATION} --runtime linux-x64
+dotnet publish $PROJECT_FILE --output ${BUILD_DIR}/heroku_output/${PROJECT_NAME} --configuration ${BUILD_CONFIGURATION} --runtime linux-x64
 
 if [ -f ${BUILD_DIR}/Procfile ]; then
 	topic "WARNING"
@@ -74,6 +80,6 @@ if [ -f ${BUILD_DIR}/Procfile ]; then
 else
 	echo "Add web process to Procfile" | indent
 	cat << EOT >> ${BUILD_DIR}/Procfile
-web: cd \$HOME/heroku_output && ./${PROJECT_NAME}
+web: cd \$HOME/heroku_output && ./${PROJECT_NAME}/${PROJECT_NAME}.App
 EOT
 fi
